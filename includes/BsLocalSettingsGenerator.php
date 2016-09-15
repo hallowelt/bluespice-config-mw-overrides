@@ -58,8 +58,9 @@ class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 # Enabled extensions. Most of the extensions are enabled by adding
 # wfLoadExtensions('ExtensionName');
 # to LocalSettings.php. Check specific extension documentation for more details.
-# The following extensions were automatically enabled:\n";
-
+# The following extensions were automatically enabled:\n
+require_once \"\$IP/LocalSettings.BlueSpiceDistribution.php\";
+require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";";
 			foreach ( $this->extensions as $extName ) {
 				$localSettings .= $this->generateExtEnableLine( 'extensions', $extName );
 			}
@@ -68,7 +69,7 @@ class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 		}
 
 		// BlueSpice - START
-		$localSettings .= "require_once \"\$IP/LocalSettings.BlueSpice.php\";\n";
+		#$localSettings .= "require_once \"\$IP/LocalSettings.BlueSpice.php\";\n";
 		// BlueSpice - END
 
 		$localSettings .= "
@@ -76,5 +77,34 @@ class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 # Add more configuration options below.\n\n";
 
 		return $localSettings;
+	}
+
+	/**
+	 * Copy of parent::generateExtEnableLine, cause its private
+	 * Generate the appropriate line to enable the given extension or skin
+	 *
+	 * @param string $dir Either "extensions" or "skins"
+	 * @param string $name Name of extension/skin
+	 * @throws InvalidArgumentException
+	 * @return string
+	 */
+	private function generateExtEnableLine( $dir, $name ) {
+		if ( $dir === 'extensions' ) {
+			$jsonFile = 'extension.json';
+			$function = 'wfLoadExtension';
+		} elseif ( $dir === 'skins' ) {
+			$jsonFile = 'skin.json';
+			$function = 'wfLoadSkin';
+		} else {
+			throw new InvalidArgumentException( '$dir was not "extensions" or "skins' );
+		}
+
+		$encName = self::escapePhpString( $name );
+
+		if ( file_exists( "{$this->IP}/$dir/$encName/$jsonFile" ) ) {
+			return "$function( '$encName' );\n";
+		} else {
+			return "require_once \"\$IP/$dir/$encName/$encName.php\";\n";
+		}
 	}
 }

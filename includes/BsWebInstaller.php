@@ -48,17 +48,47 @@ class BsWebInstaller extends WebInstaller {
 	 * @return array
 	 */
 	public function findExtensions( $directory = 'extensions' ) {
-		$aList = parent::findExtensions( $directory );
-		$aExts = array();
-		foreach ( $aList as $sEntry ) {
-			//We hide this from the user as he may not remove it
-			if ( $sEntry === 'BlueSpiceFoundation' ) {
-				continue;
-			}
-			$aExts[] = $sEntry;
+		if ( $this->getVar( 'IP' ) === null ) {
+			return [];
 		}
 
-		return $aExts;
+		$extDir = $this->getVar( 'IP' ) . '/' . $directory;
+		if ( !is_readable( $extDir ) || !is_dir( $extDir ) ) {
+			return [];
+		}
+
+		// extensions -> extension.json, skins -> skin.json
+		list( $directory, $sSubPath ) = explode( '/', "$directory/" );
+		$jsonFile = substr( $directory, 0, strlen( $directory ) -1 ) . '.json';
+
+		$dh = opendir( $extDir );
+		$exts = [];
+		while ( ( $file = readdir( $dh ) ) !== false ) {
+			if ( !is_dir( "$extDir/$file" ) ) {
+				continue;
+			}
+			if( $file === 'BlueSpiceExtensions' ) {
+				$aSubList = $this->findExtensions( "$directory/$file" );
+				foreach( $aSubList as $sSubEntry ) {
+					$exts[] = $sSubEntry;
+				}
+				continue;
+			}
+			if( in_array( $file, $GLOBALS['bsgSkipExtensions'] ) ) {
+				//We hide this from the user as he may not remove it
+				continue;
+			}
+			if ( file_exists( "$extDir/$file/$jsonFile" ) || file_exists( "$extDir/$file/$file.php" ) ) {
+				if( !empty($sSubPath) ) {
+					$file = "$sSubPath/$file";
+				}
+				$exts[] = $file;
+			}
+		}
+		closedir( $dh );
+		natcasesort( $exts );
+
+		return $exts;
 	}
 
 	/**
@@ -81,9 +111,15 @@ class BsWebInstaller extends WebInstaller {
 		 */
 		global $wgAutoloadClasses;
 		$wgAutoloadClasses = [];
-		$queue = [];
+		$queue = [
+			"$IP/extensions/BlueSpiceFoundation/extension.json" => 1
+		];
 
 		require "$IP/includes/DefaultSettings.php";
+		// BlueSpice - START
+		require_once "$IP/LocalSettings.BlueSpiceDistribution.php";
+		require_once "$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php";
+		// BlueSpice - END
 
 		foreach ( $exts as $e ) {
 			if ( file_exists( "$IP/extensions/$e/extension.json" ) ) {
@@ -95,11 +131,10 @@ class BsWebInstaller extends WebInstaller {
 
 		$registry = new ExtensionRegistry();
 		$data = $registry->readFromQueue( $queue );
-		$wgAutoloadClasses += $data['autoload'];
-
-		// BlueSpice - START
-		require_once "$IP/LocalSettings.BlueSpice.php";
-		// BlueSpice - END
+		$wgAutoloadClasses = array_merge(
+			$wgAutoloadClasses,
+			$data['autoload']
+		);
 
 		$hooksWeWant = isset( $wgHooks['LoadExtensionSchemaUpdates'] ) ?
 			$wgHooks['LoadExtensionSchemaUpdates'] : [];
@@ -130,15 +165,16 @@ class BsWebInstaller extends WebInstaller {
 	 * @return array
 	 */
 	protected function getInstallSteps( DatabaseInstaller $installer ) {
-		$coreInstallSteps = array(
-			array( 'name' => 'database', 'callback' => array( $installer, 'setupDatabase' ) ),
-			array( 'name' => 'tables', 'callback' => array( $installer, 'createTables' ) ),
-			array( 'name' => 'interwiki', 'callback' => array( $installer, 'populateInterwikiTable' ) ),
-			array( 'name' => 'stats', 'callback' => array( $this, 'populateSiteStats' ) ),
-			array( 'name' => 'keys', 'callback' => array( $this, 'generateKeys' ) ),
-			array( 'name' => 'sysop', 'callback' => array( $this, 'createSysop' ) ),
-			array( 'name' => 'mainpage', 'callback' => array( $this, 'createMainpage' ) )
-		);
+		$coreInstallSteps = [
+			[ 'name' => 'database', 'callback' => [ $installer, 'setupDatabase' ] ],
+			[ 'name' => 'tables', 'callback' => [ $installer, 'createTables' ] ],
+			[ 'name' => 'interwiki', 'callback' => [ $installer, 'populateInterwikiTable' ] ],
+			[ 'name' => 'stats', 'callback' => [ $this, 'populateSiteStats' ] ],
+			[ 'name' => 'keys', 'callback' => [ $this, 'generateKeys' ] ],
+			[ 'name' => 'updates', 'callback' => [ $installer, 'insertUpdateKeys' ] ],
+			[ 'name' => 'sysop', 'callback' => [ $this, 'createSysop' ] ],
+			[ 'name' => 'mainpage', 'callback' => [ $this, 'createMainpage' ] ],
+		];
 
 		// Build the array of install steps starting from the core install list,
 		// then adding any callbacks that wanted to attach after a given step
@@ -160,15 +196,14 @@ class BsWebInstaller extends WebInstaller {
 			);
 		}
 
-		// BlueSpice
 		// Extensions should always go first, chance to tie into hooks and such
 		array_unshift( $this->installSteps,
-			array( 'name' => 'extensions', 'callback' => array( $this, 'includeExtensions' ) )
+			[ 'name' => 'extensions', 'callback' => [ $this, 'includeExtensions' ] ]
 		);
-		$this->installSteps[] = array(
+		$this->installSteps[] = [
 			'name' => 'extension-tables',
-			'callback' => array( $installer, 'createExtensionTables' )
-		);
+			'callback' => [ $installer, 'createExtensionTables' ]
+		];
 
 		return $this->installSteps;
 	}
