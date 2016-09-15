@@ -25,15 +25,26 @@
  * BlueSpice output class modelled on OutputPage.
  *
  * @ingroup Deployment
- * @since 2.23
+ * @since 2.27
  *
- * @author Stephan Muggli <muggli@hallowelt.com>
+ * @author Stephan Muggli
+ * @author Robert Vogel <vogel@hallowelt.com>
  */
 class BsWebInstallerOutput extends WebInstallerOutput {
 
 	 // BlueSpice
 	public function outputTitle() {
 		global $wgVersion;
-		echo wfMessage( 'bs-installer-title', $wgVersion, '2.23.3' )->plain();
+		echo wfMessage( 'bs-installer-title', $wgVersion, '2.27' )->plain();
 	}
+
+	/* //For the future
+	public function getJQuery() {
+		$sJQueryScriptTag = parent::getJQuery();
+		return $sJQueryScriptTag.
+			"\n\t".
+			Html::linkedStyle( "../extensions/BlueSpiceFoundation/resources/extjs/resources/ext-theme-neptune/ext-theme-neptune-all.js" )."\n\t".
+			Html::linkedScript( "../extensions/BlueSpiceFoundation/resources/extjs/ext-all-debug.js" );
+	}
+	*/
 }

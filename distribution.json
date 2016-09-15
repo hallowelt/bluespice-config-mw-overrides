@@ -1,0 +1,64 @@
+{
+	"extensions":{
+		"Cite": {
+			"enabled": true,
+			"requires": []
+		},
+		"CiteThisPage": {
+			"enabled": true,
+			"requires": []
+		},
+		"ConfirmEdit": {
+			"enabled": false,
+			"requires": []
+		},
+		"Gadgets": {
+			"enabled": true,
+			"requires": []
+		},
+		"ImageMap": {
+			"enabled": true,
+			"requires": []
+		},
+		"InputBox": {
+			"enabled": true,
+			"requires": []
+		},
+		"Interwiki": {
+			"enabled": true,
+			"requires": []
+		},
+		"Nuke": {
+			"enabled": true,
+			"requires": []
+		},
+		"ParserFunctions": {
+			"enabled": true,
+			"requires": []
+		},
+		"PdfHandler": {
+			"enabled": false,
+			"requires": []
+		},
+		"Poem": {
+			"enabled": false,
+			"requires": []
+		},
+		"SpamBlacklist": {
+			"enabled": false,
+			"requires": []
+		},
+		"SyntaxHighlight_GeSHi": {
+			"enabled": true,
+			"requires": []
+		},
+		"TitleBlacklist": {
+			"enabled": false,
+			"requires": []
+		},
+		"WikiEditor": {
+			"enabled": false,
+			"requires": []
+		}
+	}
+}

@@ -25,43 +25,56 @@
  * Class for generating BlueSpice LocalSettings.php file.
  *
  * @ingroup Deployment
- * @since 2.23
+ * @since 2.27
  *
- * @author Stephan Muggli <muggli@hallowelt.com>
+ * @author Stephan Muggli
+ * @author Robert Vogel <vogel@hallowelt.com>
  */
 class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 
 	/**
 	 * Return the full text of the generated LocalSettings.php file,
-	 * including the extensions
+	 * including the extensions and skins.
 	 *
-	 * @return String
+	 * @return string
 	 */
 	public function getText() {
 		$localSettings = $this->getDefaultText();
 
+		if ( count( $this->skins ) ) {
+			$localSettings .= "
+# Enabled skins.
+# The following skins were automatically enabled:\n";
+
+			foreach ( $this->skins as $skinName ) {
+				$localSettings .= $this->generateExtEnableLine( 'skins', $skinName );
+			}
+
+			$localSettings .= "\n";
+		}
+
 		if ( count( $this->extensions ) ) {
 			$localSettings .= "
-# Enabled Extensions. Most extensions are enabled by including the base extension file here
-# but check specific extension documentation for more details
+# Enabled extensions. Most of the extensions are enabled by adding
+# wfLoadExtensions('ExtensionName');
+# to LocalSettings.php. Check specific extension documentation for more details.
 # The following extensions were automatically enabled:\n";
 
 			foreach ( $this->extensions as $extName ) {
-				$encExtName = self::escapePhpString( $extName );
-				$localSettings .= "require_once \"\$IP/extensions/$encExtName/$encExtName.php\";\n";
+				$localSettings .= $this->generateExtEnableLine( 'extensions', $extName );
 			}
+
+			$localSettings .= "\n";
 		}
 
-		// BlueSpice
-		$localSettings .= "require_once \"\$IP/extensions/BlueSpiceDistribution/BlueSpiceDistribution.php\";\n";
-		$localSettings .= "require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";\n";
-		$localSettings .= "require_once \"\$IP/extensions/BlueSpiceExtensions/BlueSpiceExtensions.php\";\n";
-		$localSettings .= "require_once \"\$IP/skins/BlueSpiceSkin/BlueSpiceSkin.php\";\n";
+		// BlueSpice - START
+		$localSettings .= "require_once \"\$IP/LocalSettings.BlueSpice.php\";\n";
+		// BlueSpice - END
 
-		$localSettings .= "\n\n# End of automatically generated settings.
+		$localSettings .= "
+# End of automatically generated settings.
 # Add more configuration options below.\n\n";
 
 		return $localSettings;
 	}
-
 }

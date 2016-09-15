@@ -25,16 +25,17 @@
  * Class for the core and BlueSpice installer web interface.
  *
  * @ingroup Deployment
- * @since 2.23
+ * @since 2.27
  *
- * @author Stephan Muggli <muggli@hallowelt.com>
+ * @author Stephan Muggli
+ * @author Robert Vogel <vogel@hallowelt.com>
  */
 class BsWebInstaller extends WebInstaller {
 
 	public function __construct( \WebRequest $request ) {
-		 // BlueSpice
+		// BlueSpice
 		global $wgMessagesDirs;
-		$wgMessagesDirs['BlueSpiceInstaller'] = dirname( dirname( __DIR__ ) ) . '/i18n/installer';
+		$wgMessagesDirs['BlueSpiceInstaller'] = __DIR__ .'/../i18n';
 
 		parent::__construct( $request );
 		$this->output = new BsWebInstallerOutput( $this );
@@ -46,13 +47,15 @@ class BsWebInstaller extends WebInstaller {
 	 *
 	 * @return array
 	 */
-	public function findExtensions() {
-		$aList = parent::findExtensions();
+	public function findExtensions( $directory = 'extensions' ) {
+		$aList = parent::findExtensions( $directory );
 		$aExts = array();
 		foreach ( $aList as $sEntry ) {
-			if ( stripos( $sEntry, 'BlueSpice' ) === false ) {
-				$aExts[] = $sEntry;
+			//We hide this from the user as he may not remove it
+			if ( $sEntry === 'BlueSpiceFoundation' ) {
+				continue;
 			}
+			$aExts[] = $sEntry;
 		}
 
 		return $aExts;
@@ -60,7 +63,7 @@ class BsWebInstaller extends WebInstaller {
 
 	/**
 	 * Installs the auto-detected extensions.
-	 *
+	 * @override Added "$IP/LocalSettings.BlueSpice.php"
 	 * @return Status
 	 */
 	protected function includeExtensions() {
@@ -74,29 +77,42 @@ class BsWebInstaller extends WebInstaller {
 		 * want here is $wgHooks['LoadExtensionSchemaUpdates']. This won't work
 		 * if the extension has hidden hook registration in $wgExtensionFunctions,
 		 * but we're not opening that can of worms
-		 * @see https://bugzilla.wikimedia.org/show_bug.cgi?id=26857
+		 * @see https://phabricator.wikimedia.org/T28857
 		 */
 		global $wgAutoloadClasses;
-		$wgAutoloadClasses = array();
+		$wgAutoloadClasses = [];
+		$queue = [];
 
 		require "$IP/includes/DefaultSettings.php";
 
 		foreach ( $exts as $e ) {
-			require_once "$IP/extensions/$e/$e.php";
+			if ( file_exists( "$IP/extensions/$e/extension.json" ) ) {
+				$queue["$IP/extensions/$e/extension.json"] = 1;
+			} else {
+				require_once "$IP/extensions/$e/$e.php";
+			}
 		}
 
-		 // BlueSpice
-		require_once "$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php";
-		require_once "$IP/extensions/BlueSpiceExtensions/BlueSpiceExtensions.php";
-		require_once "$IP/extensions/BlueSpiceDistribution/BlueSpiceDistribution.php";
-		require_once "$IP/skins/BlueSpiceSkin/BlueSpiceSkin.php";
+		$registry = new ExtensionRegistry();
+		$data = $registry->readFromQueue( $queue );
+		$wgAutoloadClasses += $data['autoload'];
+
+		// BlueSpice - START
+		require_once "$IP/LocalSettings.BlueSpice.php";
+		// BlueSpice - END
 
 		$hooksWeWant = isset( $wgHooks['LoadExtensionSchemaUpdates'] ) ?
-			$wgHooks['LoadExtensionSchemaUpdates'] : array();
+			$wgHooks['LoadExtensionSchemaUpdates'] : [];
 
+		if ( isset( $data['globals']['wgHooks']['LoadExtensionSchemaUpdates'] ) ) {
+			$hooksWeWant = array_merge_recursive(
+				$hooksWeWant,
+				$data['globals']['wgHooks']['LoadExtensionSchemaUpdates']
+			);
+		}
 		// Unset everyone else's hooks. Lord knows what someone might be doing
 		// in ParserFirstCallInit (see bug 27171)
-		$GLOBALS['wgHooks'] = array( 'LoadExtensionSchemaUpdates' => $hooksWeWant );
+		$GLOBALS['wgHooks'] = [ 'LoadExtensionSchemaUpdates' => $hooksWeWant ];
 
 		return Status::newGood();
 	}

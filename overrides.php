@@ -7,4 +7,3 @@ $GLOBALS['wgAutoloadClasses']['BsLocalSettingsGenerator'] = __DIR__ . 'includes/
 
 $overrides['LocalSettingsGenerator'] = 'BsLocalSettingsGenerator';
 $overrides['WebInstaller'] = 'BsWebInstaller';
-
