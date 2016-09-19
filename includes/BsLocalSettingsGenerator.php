@@ -53,20 +53,26 @@ class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 			$localSettings .= "\n";
 		}
 
-		if ( count( $this->extensions ) ) {
-			$localSettings .= "
+		$localSettings .= "
 # Enabled extensions. Most of the extensions are enabled by adding
 # wfLoadExtensions('ExtensionName');
 # to LocalSettings.php. Check specific extension documentation for more details.
 # The following extensions were automatically enabled:\n
 require_once \"\$IP/LocalSettings.BlueSpiceDistribution.php\";
-require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";";
-			foreach ( $this->extensions as $extName ) {
-				$localSettings .= $this->generateExtEnableLine( 'extensions', $extName );
-			}
-
-			$localSettings .= "\n";
+#require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";
+";
+		foreach ( $this->extensions as $extName ) {
+			$localSettings .= $this->generateExtEnableLine( 'extensions', $extName );
 		}
+
+		$localSettings .= "\n";
+		
+		$localSettings .= "
+\$wgUserMergeProtectedGroups = array();
+\$wgUserMergeUnmergeable = array();
+\$wgMFAutodetectMobileView = true;
+\$wgMFEnableDesktopResources = true;
+";
 
 		// BlueSpice - START
 		#$localSettings .= "require_once \"\$IP/LocalSettings.BlueSpice.php\";\n";

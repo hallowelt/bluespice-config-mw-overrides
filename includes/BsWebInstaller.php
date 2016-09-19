@@ -97,58 +97,37 @@ class BsWebInstaller extends WebInstaller {
 	 * @return Status
 	 */
 	protected function includeExtensions() {
-		global $IP;
+		global $IP, $wgAutoloadClasses;
 		$exts = $this->getVar( '_Extensions' );
 		$IP = $this->getVar( 'IP' );
-
-		/**
-		 * We need to include DefaultSettings before including extensions to avoid
-		 * warnings about unset variables. However, the only thing we really
-		 * want here is $wgHooks['LoadExtensionSchemaUpdates']. This won't work
-		 * if the extension has hidden hook registration in $wgExtensionFunctions,
-		 * but we're not opening that can of worms
-		 * @see https://phabricator.wikimedia.org/T28857
-		 */
-		global $wgAutoloadClasses;
 		$wgAutoloadClasses = [];
-		$queue = [
-			"$IP/extensions/BlueSpiceFoundation/extension.json" => 1
-		];
 
 		require "$IP/includes/DefaultSettings.php";
-		// BlueSpice - START
 		require_once "$IP/LocalSettings.BlueSpiceDistribution.php";
-		require_once "$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php";
-		// BlueSpice - END
+		require_once
+			"$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php";
 
+		$registry = ExtensionRegistry::getInstance();
+		$registry->queue( "$IP/extensions/BlueSpiceFoundation/extension.json" );
 		foreach ( $exts as $e ) {
 			if ( file_exists( "$IP/extensions/$e/extension.json" ) ) {
-				$queue["$IP/extensions/$e/extension.json"] = 1;
+				$registry->queue( "$IP/extensions/$e/extension.json" );
 			} else {
 				require_once "$IP/extensions/$e/$e.php";
+				//Trust me, im an engineer!
+				//Installer::getExistingLocalSettings used in
+				//DatabaseUpdater::loadExtensions overwrites resets
+				//wgAutoloadClasses and loads the extension.json files. So we
+				//need a fake extensin.json for every extension, that dosent use
+				//the new registration.
+				$sFakeRegistrationFile
+					= "$IP/mw-config/overrides/extensions/$e/extension.json";
+				if( !file_exists( $sFakeRegistrationFile ) ) {
+					continue;
+				}
+				$registry->queue( $sFakeRegistrationFile );
 			}
 		}
-
-		$registry = new ExtensionRegistry();
-		$data = $registry->readFromQueue( $queue );
-		$wgAutoloadClasses = array_merge(
-			$wgAutoloadClasses,
-			$data['autoload']
-		);
-
-		$hooksWeWant = isset( $wgHooks['LoadExtensionSchemaUpdates'] ) ?
-			$wgHooks['LoadExtensionSchemaUpdates'] : [];
-
-		if ( isset( $data['globals']['wgHooks']['LoadExtensionSchemaUpdates'] ) ) {
-			$hooksWeWant = array_merge_recursive(
-				$hooksWeWant,
-				$data['globals']['wgHooks']['LoadExtensionSchemaUpdates']
-			);
-		}
-		// Unset everyone else's hooks. Lord knows what someone might be doing
-		// in ParserFirstCallInit (see bug 27171)
-		$GLOBALS['wgHooks'] = [ 'LoadExtensionSchemaUpdates' => $hooksWeWant ];
-
 		return Status::newGood();
 	}
 
