@@ -61,8 +61,24 @@ class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 require_once \"\$IP/LocalSettings.BlueSpiceDistribution.php\";
 #require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";
 ";
+		$aBSExt = array();
 		foreach ( $this->extensions as $extName ) {
-			$localSettings .= $this->generateExtEnableLine( 'extensions', $extName );
+			//Include every non-BlueSpice extension first!
+			if( strpos($extName, 'BlueSpice') ) {
+				$aBSExt[] = $extName;
+				continue;
+			}
+			$localSettings .= $this->generateExtEnableLine(
+				'extensions',
+				$extName
+			);
+		}
+		//Now include the BlueSpiceExtensions
+		foreach( $aBSExt as $extName ) {
+			$localSettings .= $this->generateExtEnableLine(
+				'extensions',
+				$extName
+			);
 		}
 
 		$localSettings .= "\n";
@@ -73,10 +89,6 @@ require_once \"\$IP/LocalSettings.BlueSpiceDistribution.php\";
 \$wgMFAutodetectMobileView = true;
 \$wgMFEnableDesktopResources = true;
 ";
-
-		// BlueSpice - START
-		#$localSettings .= "require_once \"\$IP/LocalSettings.BlueSpice.php\";\n";
-		// BlueSpice - END
 
 		$localSettings .= "
 # End of automatically generated settings.

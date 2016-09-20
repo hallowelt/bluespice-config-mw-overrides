@@ -31,6 +31,17 @@
  * @author Robert Vogel <vogel@hallowelt.com>
  */
 class BsWebInstaller extends WebInstaller {
+	protected static $aOptions = null;
+	protected function getOptions() {
+		if( !is_null(static::$aOptions) ) {
+			return static::$aOptions;
+		}
+
+		$sJson = file_get_contents(
+			$this->getVar( 'IP' )."/mw-config/overrides/distribution.json"
+		);
+		static::$aOptions = (array) json_decode( $sJson );
+	}
 
 	public function __construct( \WebRequest $request ) {
 		// BlueSpice
@@ -187,4 +198,69 @@ class BsWebInstaller extends WebInstaller {
 		return $this->installSteps;
 	}
 
+	public function getCheckBox( $params ) {
+		$bUserCanEdit = $bRender = true;
+		$this->setDefaultOption( $params, $bUserCanEdit, $bRender );
+		if( !isset( $params['attribs'] ) ) {
+			$params['attribs'] = [];
+		}
+		if( $bUserCanEdit === false ) {
+			$params['attribs']['disabled'] = "disabled";
+		}
+		if ( !isset( $params['help'] ) ) {
+			$params['help'] = "";
+		}
+		if( $bRender === false ) {
+			return "";
+		}
+		return parent::getCheckBox( $params );
+	}
+
+	public function getRadioElements($params) {
+		$bUserCanEdit = $bRender = true;
+		$this->setDefaultOption( $params, $bUserCanEdit, $bRender );
+		if( !isset( $params['attribs'] ) ) {
+			$params['attribs'] = [];
+		}
+		if( $bUserCanEdit === false ) {
+			$params['attribs']['disabled'] = "disabled";
+		}
+		if( $bRender === false ) {
+			return "";
+		}
+		return parent::getRadioElements( $params );
+	}
+
+	public function setDefaultOption( $aParams, &$bUserCanEdit = true, &$bRender = true ) {
+		$aOptions = $this->getOptions();
+		if( empty($aOptions) ) {
+			return;
+		}
+		if( empty($aOptions[$aParams['var']]) ) {
+			return;
+		}
+		if( isset($aOptions[$aParams['var']]->render) ) {
+			$bRender = $aOptions[$aParams['var']]->render === true
+				? true
+				: false
+			;
+		}
+		if( isset($aOptions[$aParams['var']]->userCanEdit) ) {
+			$bUserCanEdit = $aOptions[$aParams['var']]->userCanEdit === true
+				? true
+				: false
+			;
+		}
+
+		//already set by user!
+		if( !is_null($this->getVar( $aParams['var'] )) ) {
+			return;
+		}
+
+		$this->setVar(
+			$aParams['var'],
+			$aOptions[$aParams['var']]->value
+		);
+		return true;
+	}
 }

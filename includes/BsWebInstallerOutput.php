@@ -47,4 +47,34 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 			Html::linkedScript( "../extensions/BlueSpiceFoundation/resources/extjs/ext-all-debug.js" );
 	}
 	*/
+
+	public function outputFooter() {
+		if ( $this->useShortHeader ) {
+			echo Html::closeElement( 'body' ) . Html::closeElement( 'html' );
+
+			return;
+		}
+?>
+
+</div></div>
+
+<div id="mw-panel">
+	<div class="portal" id="p-logo">
+	  <a style="background-image: url(overrides/resources/images/bs-logo.png);background-size: 140px;"
+		href="https://www.mediawiki.org/"
+		title="Main Page"></a>
+	</div>
+<?php
+	$message = wfMessage( 'config-sidebar' )->plain();
+	foreach ( explode( '----', $message ) as $section ) {
+		echo '<div class="portal"><div class="body">';
+		echo $this->parent->parse( $section, true );
+		echo '</div></div>';
+	}
+?>
+</div>
+
+<?php
+		echo Html::closeElement( 'body' ) . Html::closeElement( 'html' );
+	}
 }
