@@ -85,7 +85,7 @@
 		"userCanEdit": false
 	},
 	"ext-Quiz": {
-		"value": false,
+		"value": true,
 		"requires": [],
 		"userCanEdit": false
 	},
@@ -144,6 +144,11 @@
 		"requires": [],
 		"userCanEdit": false
 	},
+	"ext-EditNotify": {
+		"value": true,
+		"requires": [],
+		"userCanEdit": false
+	},
 	"ext-RSS": {
 		"value": true,
 		"requires": [],
@@ -155,6 +160,26 @@
 		"userCanEdit": false
 	},
 	"ext-TitleKey": {
+		"value": true,
+		"requires": [],
+		"userCanEdit": false
+	},
+	"ext-BlueSpiceDistributionConnector": {
+		"value": true,
+		"requires": [],
+		"userCanEdit": false
+	},
+	"ext-BlueSpiceEchoConnector": {
+		"value": true,
+		"requires": [],
+		"userCanEdit": false
+	},
+	"ext-BlueSpiceEditNotifyConnector": {
+		"value": true,
+		"requires": [],
+		"userCanEdit": false
+	},
+	"ext-BlueSpiceUserMergeConnector": {
 		"value": true,
 		"requires": [],
 		"userCanEdit": false

@@ -58,8 +58,8 @@ class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 # wfLoadExtensions('ExtensionName');
 # to LocalSettings.php. Check specific extension documentation for more details.
 # The following extensions were automatically enabled:\n
-require_once \"\$IP/LocalSettings.BlueSpiceDistribution.php\";
-#require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";
+#require_once \"\$IP/LocalSettings.BlueSpiceDistribution.php\";
+require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";
 ";
 		$aBSExt = array();
 		foreach ( $this->extensions as $extName ) {

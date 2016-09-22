@@ -89,7 +89,7 @@ class BsWebInstaller extends WebInstaller {
 				//We hide this from the user as he may not remove it
 				continue;
 			}
-			if ( file_exists( "$extDir/$file/$jsonFile" ) || file_exists( "$extDir/$file/$file.php" ) ) {
+			if ( file_exists( "$extDir/$file/$jsonFile" ) || file_exists( "$extDir/$file/$file.php" ) || file_exists( "$extDir/$file/$file.setup.php" ) ) {
 				if( !empty($sSubPath) ) {
 					$file = "$sSubPath/$file";
 				}
@@ -124,7 +124,14 @@ class BsWebInstaller extends WebInstaller {
 			if ( file_exists( "$IP/extensions/$e/extension.json" ) ) {
 				$registry->queue( "$IP/extensions/$e/extension.json" );
 			} else {
-				require_once "$IP/extensions/$e/$e.php";
+				if( file_exists( "$IP/extensions/$e/$e.setup.php" ) ) {
+					require_once "$IP/extensions/$e/$e.setup.php";
+				} elseif( file_exists( "$IP/extensions/$e/$e.php" ) ) {
+					require_once "$IP/extensions/$e/$e.php";
+				} else {
+					// :(
+					continue;
+				}
 				//Trust me, im an engineer!
 				//Installer::getExistingLocalSettings used in
 				//DatabaseUpdater::loadExtensions overwrites resets
@@ -204,8 +211,15 @@ class BsWebInstaller extends WebInstaller {
 		if( !isset( $params['attribs'] ) ) {
 			$params['attribs'] = [];
 		}
+		$sHidden = "";
 		if( $bUserCanEdit === false ) {
-			$params['attribs']['disabled'] = "disabled";
+			//dosnt work....
+			/*$sHidden = Html::hidden(
+				$params['var'],
+				$this->getVar($params['var']),
+				$params['attribs']
+			);
+			$params['attribs']['disabled'] = "disabled";*/
 		}
 		if ( !isset( $params['help'] ) ) {
 			$params['help'] = "";
@@ -213,7 +227,7 @@ class BsWebInstaller extends WebInstaller {
 		if( $bRender === false ) {
 			return "";
 		}
-		return parent::getCheckBox( $params );
+		return parent::getCheckBox( $params ).$sHidden;
 	}
 
 	public function getRadioElements($params) {
