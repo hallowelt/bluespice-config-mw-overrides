@@ -114,7 +114,6 @@ class BsWebInstaller extends WebInstaller {
 		$wgAutoloadClasses = [];
 
 		require "$IP/includes/DefaultSettings.php";
-		require_once "$IP/LocalSettings.BlueSpiceDistribution.php";
 		require_once
 			"$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php";
 
