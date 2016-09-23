@@ -445,7 +445,7 @@
 		"userCanEdit": false
 	},
 	"ext-BlueSpiceExtensions/WidgetBar": {
-		"value": true,
+		"value": false,
 		"requires": [],
 		"userCanEdit": false
 	},
