@@ -345,7 +345,7 @@
 		"userCanEdit": false
 	},
 	"ext-BlueSpiceExtensions/Review": {
-		"value": true,
+		"value": false,
 		"requires": [],
 		"userCanEdit": false
 	},
@@ -430,7 +430,7 @@
 		"userCanEdit": false
 	},
 	"ext-BlueSpiceExtensions/WantedArticle": {
-		"value": true,
+		"value": false,
 		"requires": [],
 		"userCanEdit": false
 	},
