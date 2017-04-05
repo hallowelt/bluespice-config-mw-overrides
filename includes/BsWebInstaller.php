@@ -131,7 +131,7 @@ class BsWebInstaller extends WebInstaller {
 					// :(
 					continue;
 				}
-				//Trust me, im an engineer!
+				//Trust me, I'm an engineer!
 				//Installer::getExistingLocalSettings used in
 				//DatabaseUpdater::loadExtensions overwrites resets
 				//wgAutoloadClasses and loads the extension.json files. So we
@@ -275,5 +275,12 @@ class BsWebInstaller extends WebInstaller {
 			$aOptions[$aParams['var']]->value
 		);
 		return true;
+	}
+
+	public function getPageByName( $pageName ) {
+		if( $pageName === 'Options' ) {
+			return new BsWebInstallerOptions( $this );
+		}
+		return parent::getPageByName( $pageName );
 	}
 }

@@ -38,15 +38,25 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 		echo wfMessage( 'bs-installer-title', $wgVersion, '2.27' )->plain();
 	}
 
-	/* //For the future
+	public function getCSS() {
+		$sInlineCSS = parent::getCSS();
+
+		$sInlineCSS .= file_get_contents( dirname( __DIR__ ) .'/resources/main.css' );
+
+		return $sInlineCSS;
+	}
+
+	
 	public function getJQuery() {
 		$sJQueryScriptTag = parent::getJQuery();
 		return $sJQueryScriptTag.
 			"\n\t".
-			Html::linkedStyle( "../extensions/BlueSpiceFoundation/resources/extjs/resources/ext-theme-neptune/ext-theme-neptune-all.js" )."\n\t".
-			Html::linkedScript( "../extensions/BlueSpiceFoundation/resources/extjs/ext-all-debug.js" );
+			Html::linkedScript( "overrides/resources/main.js" );
+			//For the future
+			//Html::linkedStyle( "../extensions/BlueSpiceFoundation/resources/extjs/resources/ext-theme-neptune/ext-theme-neptune-all.js" )."\n\t".
+			//Html::linkedScript( "../extensions/BlueSpiceFoundation/resources/extjs/ext-all-debug.js" );
 	}
-	*/
+	
 
 	public function outputFooter() {
 		if ( $this->useShortHeader ) {
@@ -61,11 +71,12 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 <div id="mw-panel">
 	<div class="portal" id="p-logo">
 	  <a style="background-image: url(overrides/resources/images/bs-logo.png);background-size: 140px;"
-		href="https://www.mediawiki.org/"
-		title="Main Page"></a>
+		href="https://www.bluespice.com/"
+		title="BlueSpice MediaWiki Distribution"></a>
 	</div>
 <?php
 	$message = wfMessage( 'config-sidebar' )->plain();
+	echo $this->renderBlueSpiceSidebar();
 	foreach ( explode( '----', $message ) as $section ) {
 		echo '<div class="portal"><div class="body">';
 		echo $this->parent->parse( $section, true );
@@ -77,4 +88,22 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 <?php
 		echo Html::closeElement( 'body' ) . Html::closeElement( 'html' );
 	}
+
+	protected function renderBlueSpiceSidebar() {
+?>
+<div class="portal">
+	<div class="body">
+		<ul>
+			<li>
+				<a href="https://www.bluespice.com" title="BlueSpice Home" target="_blank">BlueSpice Home</a>
+			</li>
+			<li>
+				<a href="https://help.bluespice.com" title="Helpdesk" target="_blank">Helpdesk</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<?php
+	}
+
 }

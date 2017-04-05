@@ -39,50 +39,18 @@ class BsLocalSettingsGenerator extends LocalSettingsGenerator {
 	 * @return string
 	 */
 	public function getText() {
-		$localSettings = $this->getDefaultText();
+		$this->extensions = [];
+		$this->skins = [];
 
-		if ( count( $this->skins ) ) {
-			$localSettings .= "
-# Enabled skins.
-# The following skins were automatically enabled:\n";
-
-			foreach ( $this->skins as $skinName ) {
-				$localSettings .= $this->generateExtEnableLine( 'skins', $skinName );
-			}
-
-			$localSettings .= "\n";
-		}
+		$localSettings = parent::getText();
 
 		$localSettings .= "
-# Enabled extensions. Most of the extensions are enabled by adding
-# wfLoadExtensions('ExtensionName');
-# to LocalSettings.php. Check specific extension documentation for more details.
-# The following extensions were automatically enabled:\n
-#require_once \"\$IP/LocalSettings.BlueSpiceDistribution.php\";
-require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";
+# This is the main settings file for all BlueSpice extensions and settings
+# It will include all files in \"\$IP/settings.d/\" directory
+require_once \"\$IP/LocalSettings.BlueSpice.php\";
 ";
-		$aBSExt = array();
-		foreach ( $this->extensions as $extName ) {
-			//Include every non-BlueSpice extension first!
-			if( strpos($extName, 'BlueSpice') ) {
-				$aBSExt[] = $extName;
-				continue;
-			}
-			$localSettings .= $this->generateExtEnableLine(
-				'extensions',
-				$extName
-			);
-		}
-		//Now include the BlueSpiceExtensions
-		foreach( $aBSExt as $extName ) {
-			$localSettings .= $this->generateExtEnableLine(
-				'extensions',
-				$extName
-			);
-		}
 
-		$localSettings .= "\n";
-		
+		$localSettings .= "\n";	
 		$localSettings .= "
 \$wgUserMergeProtectedGroups = array();
 \$wgUserMergeUnmergeable = array();
@@ -90,39 +58,6 @@ require_once \"\$IP/extensions/BlueSpiceFoundation/BlueSpiceFoundation.php\";
 \$wgMFEnableDesktopResources = true;
 ";
 
-		$localSettings .= "
-# End of automatically generated settings.
-# Add more configuration options below.\n\n";
-
 		return $localSettings;
-	}
-
-	/**
-	 * Copy of parent::generateExtEnableLine, cause its private
-	 * Generate the appropriate line to enable the given extension or skin
-	 *
-	 * @param string $dir Either "extensions" or "skins"
-	 * @param string $name Name of extension/skin
-	 * @throws InvalidArgumentException
-	 * @return string
-	 */
-	private function generateExtEnableLine( $dir, $name ) {
-		if ( $dir === 'extensions' ) {
-			$jsonFile = 'extension.json';
-			$function = 'wfLoadExtension';
-		} elseif ( $dir === 'skins' ) {
-			$jsonFile = 'skin.json';
-			$function = 'wfLoadSkin';
-		} else {
-			throw new InvalidArgumentException( '$dir was not "extensions" or "skins' );
-		}
-
-		$encName = self::escapePhpString( $name );
-
-		if ( file_exists( "{$this->IP}/$dir/$encName/$jsonFile" ) ) {
-			return "$function( '$encName' );\n";
-		} else {
-			return "require_once \"\$IP/$dir/$encName/$encName.php\";\n";
-		}
 	}
 }
