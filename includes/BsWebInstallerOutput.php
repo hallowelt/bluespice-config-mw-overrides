@@ -76,6 +76,7 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 	</div>
 <?php
 	$message = wfMessage( 'config-sidebar' )->plain();
+	echo $this->renderBlueSpiceSidebar();
 	foreach ( explode( '----', $message ) as $section ) {
 		echo '<div class="portal"><div class="body">';
 		echo $this->parent->parse( $section, true );
@@ -87,4 +88,22 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 <?php
 		echo Html::closeElement( 'body' ) . Html::closeElement( 'html' );
 	}
+
+	protected function renderBlueSpiceSidebar() {
+?>
+<div class="portal">
+	<div class="body">
+		<ul>
+			<li>
+				<a href="https://www.bluespice.com" title="BlueSpice Home" target="_blank">BlueSpice Home</a>
+			</li>
+			<li>
+				<a href="https://help.bluespice.com" title="Helpdesk" target="_blank">Helpdesk</a>
+			</li>
+		</ul>
+	</div>
+</div>
+<?php
+	}
+
 }
