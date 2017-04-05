@@ -38,15 +38,25 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 		echo wfMessage( 'bs-installer-title', $wgVersion, '2.27' )->plain();
 	}
 
-	/* //For the future
+	public function getCSS() {
+		$sInlineCSS = parent::getCSS();
+
+		$sInlineCSS .= file_get_contents( dirname( __DIR__ ) .'/resources/main.css' );
+
+		return $sInlineCSS;
+	}
+
+	
 	public function getJQuery() {
 		$sJQueryScriptTag = parent::getJQuery();
 		return $sJQueryScriptTag.
 			"\n\t".
-			Html::linkedStyle( "../extensions/BlueSpiceFoundation/resources/extjs/resources/ext-theme-neptune/ext-theme-neptune-all.js" )."\n\t".
-			Html::linkedScript( "../extensions/BlueSpiceFoundation/resources/extjs/ext-all-debug.js" );
+			Html::linkedScript( "overrides/resources/main.js" );
+			//For the future
+			//Html::linkedStyle( "../extensions/BlueSpiceFoundation/resources/extjs/resources/ext-theme-neptune/ext-theme-neptune-all.js" )."\n\t".
+			//Html::linkedScript( "../extensions/BlueSpiceFoundation/resources/extjs/ext-all-debug.js" );
 	}
-	*/
+	
 
 	public function outputFooter() {
 		if ( $this->useShortHeader ) {
@@ -61,8 +71,8 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 <div id="mw-panel">
 	<div class="portal" id="p-logo">
 	  <a style="background-image: url(overrides/resources/images/bs-logo.png);background-size: 140px;"
-		href="https://www.mediawiki.org/"
-		title="Main Page"></a>
+		href="https://www.bluespice.com/"
+		title="BlueSpice MediaWiki Distribution"></a>
 	</div>
 <?php
 	$message = wfMessage( 'config-sidebar' )->plain();
