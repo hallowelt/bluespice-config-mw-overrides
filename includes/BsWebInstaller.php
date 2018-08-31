@@ -78,13 +78,6 @@ class BsWebInstaller extends WebInstaller {
 			if ( !is_dir( "$extDir/$file" ) ) {
 				continue;
 			}
-			if( $file === 'BlueSpiceExtensions' ) {
-				$aSubList = $this->findExtensions( "$directory/$file" );
-				foreach( $aSubList as $sSubEntry ) {
-					$exts[] = $sSubEntry;
-				}
-				continue;
-			}
 			if( in_array( $file, $GLOBALS['bsgSkipExtensions'] ) ) {
 				//We hide this from the user as he may not remove it
 				continue;
@@ -93,11 +86,11 @@ class BsWebInstaller extends WebInstaller {
 				if( !empty($sSubPath) ) {
 					$file = "$sSubPath/$file";
 				}
-				$exts[] = $file;
+				$exts[$file] = [];
 			}
 		}
 		closedir( $dh );
-		natcasesort( $exts );
+		ksort( $exts );
 
 		return $exts;
 	}
@@ -131,18 +124,6 @@ class BsWebInstaller extends WebInstaller {
 					// :(
 					continue;
 				}
-				//Trust me, I'm an engineer!
-				//Installer::getExistingLocalSettings used in
-				//DatabaseUpdater::loadExtensions overwrites resets
-				//wgAutoloadClasses and loads the extension.json files. So we
-				//need a fake extensin.json for every extension, that dosent use
-				//the new registration.
-				$sFakeRegistrationFile
-					= "$IP/mw-config/overrides/extensions/$e/extension.json";
-				if( !file_exists( $sFakeRegistrationFile ) ) {
-					continue;
-				}
-				$registry->queue( $sFakeRegistrationFile );
 			}
 		}
 		return Status::newGood();
@@ -211,15 +192,7 @@ class BsWebInstaller extends WebInstaller {
 			$params['attribs'] = [];
 		}
 		$sHidden = "";
-		if( $bUserCanEdit === false ) {
-			//dosnt work....
-			/*$sHidden = Html::hidden(
-				$params['var'],
-				$this->getVar($params['var']),
-				$params['attribs']
-			);
-			$params['attribs']['disabled'] = "disabled";*/
-		}
+
 		if ( !isset( $params['help'] ) ) {
 			$params['help'] = "";
 		}

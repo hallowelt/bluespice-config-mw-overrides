@@ -8,6 +8,7 @@ $GLOBALS['wgAutoloadClasses']['BsLocalSettingsGenerator'] = __DIR__ . '/includes
 $overrides['LocalSettingsGenerator'] = 'BsLocalSettingsGenerator';
 $overrides['WebInstaller'] = 'BsWebInstaller';
 
-$GLOBALS['bsgSkipExtensions'] = array(
-	'BlueSpiceFoundation'
-);
+$GLOBALS['wgDefaultSkin'] = strtolower( 'BlueSpiceCalumma' );
+
+// for Echo:
+$GLOBALS['wgEchoCluster'] = false;
