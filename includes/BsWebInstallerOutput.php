@@ -52,9 +52,6 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 		return $sJQueryScriptTag.
 			"\n\t".
 			Html::linkedScript( "overrides/resources/main.js" );
-			//For the future
-			//Html::linkedStyle( "../extensions/BlueSpiceFoundation/resources/extjs/resources/ext-theme-neptune/ext-theme-neptune-all.js" )."\n\t".
-			//Html::linkedScript( "../extensions/BlueSpiceFoundation/resources/extjs/ext-all-debug.js" );
 	}
 	
 
@@ -64,28 +61,18 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 
 			return;
 		}
-?>
+		echo '</div></div><div id="mw-panel">'."\n" ;
+		echo'<div class="portal" id="p-logo"></div>'."\n";
 
-</div></div>
 
-<div id="mw-panel">
-	<div class="portal" id="p-logo">
-	  <a style="background-image: url(overrides/resources/images/bs-logo.png);background-size: 140px;"
-		href="https://www.bluespice.com/"
-		title="BlueSpice MediaWiki Distribution"></a>
-	</div>
-<?php
-	$message = wfMessage( 'config-sidebar' )->plain();
-	echo $this->renderBlueSpiceSidebar();
-	foreach ( explode( '----', $message ) as $section ) {
-		echo '<div class="portal"><div class="body">';
-		echo $this->parent->parse( $section, true );
-		echo '</div></div>';
-	}
-?>
-</div>
-
-<?php
+		$message = wfMessage( 'config-sidebar' )->plain();
+		echo $this->renderBlueSpiceSidebar();
+		foreach ( explode( '----', $message ) as $section ) {
+			echo '<div class="portal"><div class="body">'."\n";
+			echo $this->parent->parse( $section, true );
+			echo '</div></div>';
+		}
+		echo '</div>'."\n";
 		echo Html::closeElement( 'body' ) . Html::closeElement( 'html' );
 	}
 
@@ -94,15 +81,12 @@ class BsWebInstallerOutput extends WebInstallerOutput {
 <div class="portal">
 	<div class="body">
 		<ul>
-			<li>
-				<a href="https://www.bluespice.com" title="BlueSpice Home" target="_blank">BlueSpice Home</a>
-			</li>
-			<li>
-				<a href="https://help.bluespice.com" title="Helpdesk" target="_blank">Helpdesk</a>
-			</li>
+			<li><a href="https://www.bluespice.com" title="BlueSpice Home" target="_blank">BlueSpice Home</a></li>
+			<li><a href="https://help.bluespice.com" title="Helpdesk" target="_blank">Helpdesk</a></li>
 		</ul>
 	</div>
 </div>
+
 <?php
 	}
 

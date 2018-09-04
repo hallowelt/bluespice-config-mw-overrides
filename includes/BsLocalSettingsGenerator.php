@@ -56,7 +56,17 @@ require_once \"\$IP/LocalSettings.BlueSpice.php\";
 \$wgUserMergeUnmergeable = array();
 \$wgMFAutodetectMobileView = true;
 \$wgMFEnableDesktopResources = true;
+
+# Convenience for debugging
+# \$wgShowSQLErrors = true;
+# \$wgDebugDumpSql  = true;
+# \$wgShowExceptionDetails = true;
+# \$wgShowDBErrorBacktrace = true;
+
 ";
+		$old=['$wgPingback = true;'];
+		$new=['$wgPingback = false;'];
+		$localSettings= str_replace($old, $new, $localSettings);
 
 		return $localSettings;
 	}

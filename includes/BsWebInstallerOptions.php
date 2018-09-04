@@ -8,6 +8,6 @@ class BsWebInstallerOptions extends WebInstallerOptions {
 	 */
 	protected function getFieldsetStart($legend) {
 		$htmlId = Sanitizer::escapeId( $legend );
-		return "\n<fieldset class=\"$htmlId\"><legend>" . wfMessage( $legend )->escaped() . "</legend></fieldset>\n";
+		return "\n<fieldset class=\"$htmlId\"><legend>" . wfMessage( $legend )->escaped() . "</legend>\n";
 	}
 }

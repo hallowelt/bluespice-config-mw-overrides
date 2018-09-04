@@ -254,6 +254,12 @@ class BsWebInstaller extends WebInstaller {
 		if( $pageName === 'Options' ) {
 			return new BsWebInstallerOptions( $this );
 		}
+		if ( $pageName === 'DBConnect' ) {
+			return new BsWebInstallerDBConnect( $this );
+		}
+		if ( $pageName === 'DBSettings' ) {
+			return new BSWebInstallerDBSettings ($this);
+		}
 		return parent::getPageByName( $pageName );
 	}
 }
