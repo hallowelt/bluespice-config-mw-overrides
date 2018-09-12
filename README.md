@@ -1,3 +1,5 @@
+**_This repo is no longer in active use. The web installer was merged into the [hallowelt/mediawiki](https://github.com/hallowelt/mediawiki/tree/master/mw-config) repo and will be maintained there._**
+
 # bluespice/config-mw/overrides (Installer for BlueSpice 3 on top of MediaWiki 1.31)
 
 This repo contains all the implementation _and_ resources/assets that are required for the installer UI
